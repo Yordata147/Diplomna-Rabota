@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Room - Shared Driving</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo"><h1>Shared Driving</h1></div>
+        <div class="openMenu"><i class="fa fa-bars"></i></div>
+        <ul class="mainMenu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="info.html">What is Shared Driving</a></li>
+            <li><a href="register.html">Register</a></li>
+            <div class="closeMenu"><i class="fa fa-times"></i></div>
+            <span class="icons">
+                <i class="fab fa-facebook"></i>
+                <i class="fab fa-instagram"></i>
+                <i class="fab fa-twitter"></i>
+                <i class="fab fa-github"></i>
+            </span>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="form-container">
+        <h1>Join a Room</h1>
+        <form id="joinRoomForm">
+            <label for="roomLink">Room Link or Code:</label>
+            <input type="text" id="roomLinkInput" name="roomLink" placeholder="Paste Room Link or Code Here" required>
+            <button type="submit">Join Room</button>
+        </form>
+    </div>
+
+    <script>
+        // JavaScript for opening/closing the menu
+        document.addEventListener('DOMContentLoaded', () => {
+            const openMenu = document.querySelector('.openMenu');
+            const closeMenu = document.querySelector('.closeMenu');
+            const mainMenu = document.querySelector('.mainMenu');
+
+            openMenu.addEventListener('click', () => {
+                mainMenu.style.display = 'flex';
+            });
+
+            closeMenu.addEventListener('click', () => {
+                mainMenu.style.display = 'none';
+            });
+
+            // Join Room form submission
+            document.getElementById('joinRoomForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const roomLink = document.getElementById('roomLinkInput').value.trim();
+                if (roomLink) {
+                    // Assuming roomLink is a full URL or a room ID that needs to be appended
+                    window.location.href = roomLink.includes('http') ? roomLink : `room.html?roomId=${roomLink}`;
+                } else {
+                    alert('Please enter a valid room link or code.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

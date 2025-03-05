@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css" integrity="sha256-46r060N2LrChLLb5zowXQ72/iKKNiw/lAmygmHExk/o=" crossorigin="anonymous" />
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo"><h1>Shared Driving</h1></div>
+        <div class="openMenu"><i class="fa fa-bars"></i></div>
+        <ul class="mainMenu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="info.html">What is Shared Driving</a></li>
+            <li><a href="register.html">Register</a></li>
+            <li id="logoutNavItem" style="display: none;"><a href="#" id="logoutButton">Logout</a></li>
+            <div class="closeMenu"><i class="fa fa-times"></i></div>
+            <span class="icons">
+                <i class="fab fa-facebook"></i>
+                <i class="fab fa-instagram"></i>
+                <i class="fab fa-twitter"></i>
+                <i class="fab fa-github"></i>
+            </span>
+        </ul>
+    </nav>    
+
+    <!-- Main Content -->
+    <header></header>
+    <div class="form-container">
+        <h1>Welcome to Shared Driving</h1>
+        <button id="loginButton">Login</button>
+        <button id="createRoomButton" style="display: none;">Create Room</button>
+        <button id="joinRoomButton" style="display: none;">Join Room</button>
+        <div id="welcomeMessage"></div>
+    </div>
+
+    <!-- Create Room Modal -->
+    <div id="createRoomModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Create a Room</h2>
+            <form id="createRoomForm">
+                <label for="roomName">Room Name:</label>
+                <input type="text" id="roomName" name="roomName" required>
+                <label for="startPoint">Start Point:</label>
+                <input type="text" id="startPoint" name="startPoint" required>
+                <label for="endPoint">End Point:</label>
+                <input type="text" id="endPoint" name="endPoint" required>
+                <label for="privacy">Privacy:</label>
+                <div>
+                    <label><input type="radio" name="privacy" value="private" checked> Private</label>
+                    <label><input type="radio" name="privacy" value="public"> Public</label>
+                </div>
+                <button type="submit">Create Room</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Join Room Modal -->
+    <div id="joinRoomModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Join an Existing Room</h2>
+            <form id="joinRoomForm">
+                <label for="roomLink">Room Link:</label>
+                <input type="text" id="roomLinkInput" name="roomLink" placeholder="Enter Room Link Here" required>
+                <button type="submit">Join Room</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="message" class="message-box"></div>
+
+    <!-- JavaScript to handle session check and UI update -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSessionAndUpdateUI();
+        });
+
+        async function checkSessionAndUpdateUI() {
+            try {
+                const response = await fetch('http://localhost:3000/api/check-session', { credentials: 'include' });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+
+                const loginButton = document.getElementById('loginButton');
+                const createRoomButton = document.getElementById('createRoomButton');
+                const joinRoomButton = document.getElementById('joinRoomButton');
+                const logoutNavItem = document.getElementById('logoutNavItem');
+                const welcomeMessage = document.getElementById('welcomeMessage');
+
+                if (data.loggedIn) {
+                    welcomeMessage.innerText = `Welcome, ${data.username}!`;
+                    loginButton.style.display = 'none';
+                    logoutNavItem.style.display = 'block';
+                    createRoomButton.style.display = 'block';
+                    joinRoomButton.style.display = 'block';
+                } else {
+                    welcomeMessage.innerText = '';
+                    loginButton.style.display = 'block';
+                    logoutNavItem.style.display = 'none';
+                    createRoomButton.style.display = 'none';
+                    joinRoomButton.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Failed to fetch session data:', error);
+            }
+        }
+
+
+        document.getElementById('logoutButton').addEventListener('click', async () => {
+            try {
+                const response = await fetch('http://localhost:3000/logout', { method: 'POST', credentials: 'include' });
+                if (!response.ok) throw new Error('Logout failed');
+                sessionStorage.clear();
+                window.location.reload();  // or redirect to a specific path
+            } catch (error) {
+                console.error('Error during logout:', error);
+            }
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/logout', { method: 'POST' });
+                if (!response.ok) throw new Error('Logout failed');
+                sessionStorage.clear();
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Error during logout:', error);
+            }
+        });
+
+        document.getElementById('joinRoomButton').addEventListener('click', function () {
+            window.location.href = 'joinroom.html';
+        });
+
+        document.getElementById('joinRoomForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const roomLink = document.getElementById('roomLinkInput').value.trim();
+            if (roomLink) {
+                window.location.href = roomLink;
+            } else {
+                alert('Please enter a valid room link.');
+            }
+        });
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('joinRoomModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        const createRoomButton = document.getElementById('createRoomButton');
+        const createRoomModal = document.getElementById('createRoomModal');
+
+        createRoomButton.addEventListener('click', () => {
+            createRoomModal.style.display = 'block';
+        });
+
+        document.getElementById('createRoomButton').addEventListener('click', function () {
+            window.location.href = 'createroom.html';
+        });
+
+        const openMenu = document.querySelector('.openMenu');
+        const closeMenu = document.querySelector('.closeMenu');
+        const mainMenu = document.querySelector('.mainMenu');
+
+        openMenu.addEventListener('click', () => {
+            mainMenu.style.display = 'flex';
+        });
+
+        closeMenu.addEventListener('click', () => {
+            mainMenu.style.display = 'none';
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 800) {
+                mainMenu.style.display = 'flex';
+            } else {
+                mainMenu.style.display = 'none';
+            }
+        });
+
+        document.getElementById('loginButton').addEventListener('click', function () {
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>

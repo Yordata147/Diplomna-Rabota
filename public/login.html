@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Shared Driving</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css" integrity="sha256-46r060N2LrChLLb5zowXQ72/iKKNiw/lAmygmHExk/o=" crossorigin="anonymous" />
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo"><h1>Shared Driving</h1></div>
+        <div class="openMenu"><i class="fa fa-bars"></i></div>
+        <ul class="mainMenu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="info.html">What is Shared Driving</a></li>
+            <li><a href="register.html">Register</a></li>
+            <div class="closeMenu"><i class="fa fa-times"></i></div>
+            <span class="icons">
+                <i class="fab fa-facebook"></i>
+                <i class="fab fa-instagram"></i>
+                <i class="fab fa-twitter"></i>
+                <i class="fab fa-github"></i>
+            </span>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="form-container">
+        <h1>Login</h1>
+        <div id="loggedInMessage" style="display: none;">You are already logged in. Redirecting...</div>
+        <form id="loginForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <div id="usernameError" class="error-message"></div>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <div id="passwordError" class="error-message"></div>
+
+            <button type="submit">Login</button>
+        </form>
+        <p class="register-link">New user? <a href="register.html">Register here</a></p>
+    </div>
+
+    <div id="message" class="message-box"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup menu toggle
+            const openMenu = document.querySelector('.openMenu');
+            const closeMenu = document.querySelector('.closeMenu');
+            const mainMenu = document.querySelector('.mainMenu');
+
+            openMenu.addEventListener('click', () => {
+                mainMenu.style.display = 'flex';
+            });
+
+            closeMenu.addEventListener('click', () => {
+                mainMenu.style.display = 'none';
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 800) {
+                    mainMenu.style.display = 'flex';
+                } else {
+                    mainMenu.style.display = 'none';
+                }
+            });
+
+            // Handle login form submission
+            const loginForm = document.getElementById('loginForm');
+            loginForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    const response = await fetch('http://localhost:3000/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password }),
+                        credentials: 'include',
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        sessionStorage.setItem('user', username);
+                        displayMessage(data.success, 'success');
+                        window.location.href = 'index.html';
+                    } else {
+                        displayMessage(data.error, 'error');
+                    }
+                } catch (error) {
+                    displayMessage('An error occurred. Please try again later.', 'error');
+                    console.error('Login error:', error);
+                }
+            });
+
+            // Check if a user is already logged in
+            if (sessionStorage.getItem('user')) {
+                document.getElementById('loggedInMessage').style.display = 'block';
+                document.getElementById('loginForm').style.display = 'none';
+
+                // Redirect after a short delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
+        });
+
+        // Helper function to display messages
+        function displayMessage(message, type) {
+            const messageBox = document.getElementById('message');
+            messageBox.textContent = message;
+            messageBox.className = 'message-box ' + (type === 'success' ? 'success' : 'error');
+            messageBox.style.display = 'block';
+            setTimeout(() => { messageBox.style.display = 'none'; }, 3000);
+        }
+    </script>
+</body>
+</html>

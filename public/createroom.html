@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Room</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css" integrity="sha256-46r060N2LrChLLb5zowXQ72/iKKNiw/lAmygmHExk/o=" crossorigin="anonymous" />
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo"><h1>Shared Driving</h1></div>
+        <div class="openMenu"><i class="fa fa-bars"></i></div>
+        <ul class="mainMenu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="info.html">What is Shared Driving</a></li>
+            <li id="logoutNavItem" style="display: none;"><a href="#" id="logoutButton">Logout</a></li>
+            <div class="closeMenu"><i class="fa fa-times"></i></div>
+            <span class="icons">
+                <i class="fab fa-facebook"></i>
+                <i class="fab fa-instagram"></i>
+                <i class="fab fa-twitter"></i>
+                <i class="fab fa-github"></i>
+            </span>
+        </ul>
+    </nav>
+
+    <!-- Create Room Content -->
+    <div class="form-container">
+        <h1>Create a Room</h1>
+        <form id="createRoomForm">
+            <label for="roomName">Room Name:</label>
+            <input type="text" id="roomName" name="roomName" required>
+
+            <label for="startPoint">Start Point:</label>
+            <input type="text" id="startPoint" name="startPoint" required>
+
+            <label for="endPoint">End Point:</label>
+            <input type="text" id="endPoint" name="endPoint" required>
+
+            <label for="privacy">Privacy:</label>
+            <div>
+                <label><input type="radio" name="privacy" value="private" checked> Private</label>
+                <label><input type="radio" name="privacy" value="public"> Public</label>
+            </div>
+
+            <button type="submit">Create Room</button>
+        </form>
+    </div>
+
+    <div id="message" class="message-box"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const openMenu = document.querySelector('.openMenu');
+            const closeMenu = document.querySelector('.closeMenu');
+            const mainMenu = document.querySelector('.mainMenu');
+
+            openMenu.addEventListener('click', () => {
+                mainMenu.style.display = 'flex';
+            });
+
+            closeMenu.addEventListener('click', () => {
+                mainMenu.style.display = 'none';
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 800) {
+                    mainMenu.style.display = 'flex';
+                } else {
+                    mainMenu.style.display = 'none';
+                }
+            });
+
+            async function checkSession() {
+                try {
+                    const response = await fetch('http://localhost:3000/check-session', {
+                        method: 'GET',
+                        credentials: 'include',
+                    });
+
+                    const data = await response.json();
+
+                    if (data.loggedIn) {
+                        sessionStorage.setItem('user', data.username);
+                        return data.username;
+                    } else {
+                        return null;
+                    }
+                } catch (error) {
+                    console.error('Error checking session:', error);
+                    return null;
+                }
+            }
+
+            async function init() {
+                const username = await checkSession();
+                if (!username) {
+                    alert('You must be logged in.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                document.getElementById('logoutButton').addEventListener('click', () => {
+                    sessionStorage.clear();
+                    alert('Logged out successfully!');
+                    window.location.href = 'index.html';
+                });
+
+                document.getElementById('createRoomForm').addEventListener('submit', async (event) => {
+                    event.preventDefault();
+
+                    const roomName = document.getElementById('roomName').value;
+                    const startPoint = document.getElementById('startPoint').value;
+                    const endPoint = document.getElementById('endPoint').value;
+                    const privacy = document.querySelector('input[name="privacy"]:checked').value;
+
+                    try {
+                        const response = await fetch('http://localhost:3000/createRoom', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ roomName, startPoint, endPoint, privacy }),
+                            credentials: 'include',
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            window.location.href = data.roomLink; // Redirect to the room
+                        } else {
+                            alert(data.error || 'An error occurred. Please try again.');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again.');
+                    }
+                });
+
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>

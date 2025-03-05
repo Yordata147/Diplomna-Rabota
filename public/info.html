@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Info - Shared Driving</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css" integrity="sha256-46r060N2LrChLLb5zowXQ72/iKKNiw/lAmygmHExk/o=" crossorigin="anonymous" />
+</head>
+<body>
+    <nav>
+        <div class="logo"><h1>Shared Driving</h1></div>
+        <div class="openMenu"><i class="fa fa-bars"></i></div>
+        <ul class="mainMenu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#what-is-shared-driving">What is Shared Driving</a></li>
+            <li><a href="#how-it-works">How Does It Work</a></li>
+            <li><a href="#about-us">About Us</a></li>
+            <li id="logoutNavItem" style="display: none;"><a href="#" id="logoutButton">Logout</a></li>
+            <div class="closeMenu"><i class="fa fa-times"></i></div>
+            <span class="icons">
+                <i class="fab fa-facebook"></i>
+                <i class="fab fa-instagram"></i>
+                <i class="fab fa-twitter"></i>
+                <i class="fab fa-github"></i>
+            </span>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="what-is-shared-driving">
+            <h1>What is Shared Driving?</h1>
+            <p>Info coming soon...</p>
+        </section>
+
+        <section id="how-it-works">
+            <h1>How Does It Work?</h1>
+            <p>Info coming soon...</p>
+        </section>
+
+        <section id="about-us">
+            <h1>About Us</h1>
+            <p>Info coming soon...</p>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const openMenu = document.querySelector('.openMenu');
+            const closeMenu = document.querySelector('.closeMenu');
+            const mainMenu = document.querySelector('.mainMenu');
+
+            openMenu.addEventListener('click', () => {
+                mainMenu.style.display = 'flex';
+            });
+
+            closeMenu.addEventListener('click', () => {
+                mainMenu.style.display = 'none';
+            });
+
+            // Reset navigation menu visibility on screen resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 800) {
+                    mainMenu.style.display = 'flex'; // Ensure links are visible in desktop view
+                } else {
+                    mainMenu.style.display = 'none'; // Hide links in mobile view
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const username = sessionStorage.getItem('user');
+
+            if (username) {
+                document.getElementById('logoutNavItem').style.display = 'block'; // Show Logout
+            }
+
+            document.getElementById('logoutButton').addEventListener('click', function () {
+                sessionStorage.clear();
+                alert('Logged out successfully!');
+                window.location.href = 'index.html'; // Redirect to home page
+            });
+        });
+    </script>
+</body>
+</html>
