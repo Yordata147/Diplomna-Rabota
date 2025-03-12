@@ -94,6 +94,23 @@
                 }
             }
 
+            // Handle logout functionality
+            document.addEventListener('DOMContentLoaded', function () {
+                const username = sessionStorage.getItem('user');
+
+                // If the user is logged in, show the logout button in the navbar
+                if (username) {
+                    document.getElementById('logoutNavItem').style.display = 'block'; // Show Logout
+                }
+
+                // Logout functionality
+                document.getElementById('logoutButton').addEventListener('click', function () {
+                    sessionStorage.clear(); // Clear the session
+                    alert('Logged out successfully!');
+                    window.location.href = 'index.html'; // Redirect to home page
+                });
+            });
+
             async function init() {
                 const username = await checkSession();
                 if (!username) {
@@ -101,13 +118,7 @@
                     window.location.href = 'login.html';
                     return;
                 }
-
-                document.getElementById('logoutButton').addEventListener('click', () => {
-                    sessionStorage.clear();
-                    alert('Logged out successfully!');
-                    window.location.href = 'index.html';
-                });
-
+                
                 document.getElementById('createRoomForm').addEventListener('submit', async (event) => {
                     event.preventDefault();
 

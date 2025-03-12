@@ -5,10 +5,14 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const cors = require('cors');
 const path = require('path');
+const http = require('http');
+const socketIo = require('socket.io');
 
 const app = express();
-const port = 3000;
+const server = http.createServer(app);
+const io = socketIo(server);
 
+const port = 3000;
 
 // Serve static files
 app.use(express.static('public'));
@@ -70,6 +74,48 @@ app.use(session({
     }
 }));
 
+const sessionMiddleware = session({
+    secret: 'ccb7cbc8bdd24ae754a16d33a5ea007720be4faa03ecf6fa28f4be5567297448b8baf7a992e98653927414b5ccd5fc30719d889c66d6fd494dca0e5bd8f1dc1a',
+    resave: true,
+    saveUninitialized: true
+});
+
+app.use(sessionMiddleware);
+
+io.use((socket, next) => {
+    sessionMiddleware(socket.request, {}, next);
+});
+
+
+/// Add to sending data from client roomId field
+/// Then use io.to(roomId).emit(locationUpdate)
+/// Use userId instead of username
+io.on('connection', (socket) => {
+    console.log(`A user connected: ${socket.id}`);
+
+    socket.on('joinRoom', (room) => {
+        socket.join(room);
+        console.log(`${socket.id} joined room ${room}`);
+    });
+
+    socket.on('sendLocation', (data) => {
+        console.log(`Received location from ${data.userId}, ${socket.id} in room ${data.roomId}: ${data.latitude}, ${data.longitude}`);
+        
+        // Broadcast this location to other users in the same room
+        socket.to(data.roomId).emit('locationUpdate', {
+            userId: data.userId,
+            latitude: data.latitude,
+            longitude: data.longitude
+        });
+
+        // Additionally, log the location update in the server terminal
+        console.log(`Location update from ${data.userId}: Latitude ${data.latitude}, Longitude ${data.longitude}`);
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`User disconnected: ${socket.id}`);
+    });
+});
 
 // Routes
 app.post('/register', async (req, res) => {
@@ -252,6 +298,6 @@ app.use((req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });
